@@ -34,7 +34,12 @@ Run the notebooks sequentially for the best experience.
    - Go to Create - Git Folder
    - Paste this repository URL 
 
-4. **Run the notebooks in order.**
+4. **Install Python dependencies once per cluster.**
+   - Open a new notebook attached to your compute resource.
+   - Run `%pip install polars faker` to make sure required libraries are available.
+   - Detach and reattach your notebooks if prompted after installation.
+
+5. **Run the notebooks in order.**
    - Navigate to `Repos/<username>/databricks-metrics-catalog/notebooks/`.
    - **Step 1:** Open `01_generate_erp_startup_dataset` and attach your running cluster. Execute the cells top-to-bottom to create the synthetic ERP catalog and metrics inventory.
    - **Step 2:** Continue with `02_bronze_to_silver_gdpr`. This notebook:
@@ -47,7 +52,7 @@ Run the notebooks sequentially for the best experience.
      - Computes monthly revenue, retention, and marketing engagement metrics.
      - Runs quality checks before optionally materializing a gold table (`erp_demo.gold_growth_metrics`).
 
-5. **Verify outputs.**
+6. **Verify outputs.**
    - Use DataFrames rendered in each notebook to confirm synthetic data and metrics look correct.
    - If you executed the persistence cells, open **Catalog ➜ erp_demo** (or use SQL) to inspect the `silver_orders` and `gold_growth_metrics` tables.
 
@@ -58,7 +63,7 @@ You can run the notebooks locally with Jupyter or VS Code using Python 3.10+:
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-   pip install pandas numpy faker
+   pip install polars numpy
    ```
 2. Launch Jupyter Lab/Notebook or VS Code and open the notebooks. Cells that require Spark will print a message and skip persistence steps when no Spark session is present.
 
