@@ -1,12 +1,12 @@
 # Databricks Metrics Catalog Demo
 
-End-to-end set of Databricks notebooks that simulate a startup ERP system, enforce GDPR in the medallion architecture, and publish gold-layer growth metrics.
+End-to-end set of Databricks notebooks that simulate a startup ERP system, enforce GDPR in the medallion architecture, and publish growth-focused gold metrics.
 
 ## Repository Structure
 
-- `notebooks/01_generate_erp_startup_dataset.ipynb` – builds a realistic dummy ERP catalog and growth metrics inventory.
+- `notebooks/01_generate_erp_startup_dataset.ipynb` – seeds synthetic ERP data straight into Spark DataFrames and derives monthly growth inputs.
 - `notebooks/02_bronze_to_silver_gdpr.ipynb` – demonstrates GDPR-safe transformation from bronze to silver, including pseudonymisation and audit logging.
-- `notebooks/03_silver_to_gold_metrics.ipynb` – aggregates curated silver data into monthly revenue and retention KPIs ready for reporting.
+- `notebooks/03_silver_to_gold_metrics.ipynb` – aggregates curated silver data into gold-layer growth metrics and registers a reusable metrics view.
 
 Run the notebooks sequentially for the best experience.
 
@@ -34,38 +34,37 @@ Run the notebooks sequentially for the best experience.
    - Go to Create - Git Folder
    - Paste this repository URL 
 
-4. **Install Python dependencies once per cluster.**
-   - Open a new notebook attached to your compute resource.
-   - Run `%pip install polars faker` to make sure required libraries are available.
-   - Detach and reattach your notebooks if prompted after installation.
+4. **Attach a cluster.**
+   - Start (or reuse) the Community Edition single-node cluster.
+   - Attach it to each notebook before running the cells. All required libraries ship with the runtime (only `numpy` is used in Python loops).
 
 5. **Run the notebooks in order.**
    - Navigate to `Repos/<username>/databricks-metrics-catalog/notebooks/`.
-   - **Step 1:** Open `01_generate_erp_startup_dataset` and attach your running cluster. Execute the cells top-to-bottom to create the synthetic ERP catalog and metrics inventory.
+   - **Step 1:** Open `01_generate_erp_startup_dataset` and execute the cells top-to-bottom to create the synthetic ERP catalog and growth baseline.
    - **Step 2:** Continue with `02_bronze_to_silver_gdpr`. This notebook:
      - Simulates bronze-layer raw data with PII.
      - Applies GDPR controls (consent filtering, pseudonymisation, purpose-limited marketing opt-ins).
      - Logs governance actions and performs compliance assertions.
      - Includes an optional final cell to write the silver dataset to the catalog (`erp_demo.silver_orders`).
    - **Step 3:** Finish with `03_silver_to_gold_metrics`. It:
-     - Loads the silver dataset (from Unity Catalog or an embedded sample if Spark isn’t available).
-     - Computes monthly revenue, retention, and marketing engagement metrics.
-     - Runs quality checks before optionally materializing a gold table (`erp_demo.gold_growth_metrics`).
+     - Loads the silver dataset (from Unity Catalog or seeds a sample into Spark if nothing exists).
+     - Computes monthly growth KPIs (revenue, retention, CAC, LTV, burn multiple, etc.).
+     - Runs quality checks before materializing a gold table (`erp_demo.gold_growth_metrics`) and a companion metrics view.
 
 6. **Verify outputs.**
    - Use DataFrames rendered in each notebook to confirm synthetic data and metrics look correct.
-   - If you executed the persistence cells, open **Catalog ➜ erp_demo** (or use SQL) to inspect the `silver_orders` and `gold_growth_metrics` tables.
+   - If you executed the persistence cells, open **Catalog ➜ erp_demo** (or use SQL) to inspect the `silver_orders`, `gold_growth_metrics`, and `gold_growth_metrics_view` objects.
 
 ## Optional: Local Execution without Databricks
 
-You can run the notebooks locally with Jupyter or VS Code using Python 3.10+:
+You can run the notebooks locally with Jupyter or VS Code using Python 3.10+ and PySpark:
 1. Create a virtual environment and install dependencies.
    ```bash
    python -m venv .venv
    source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-   pip install polars numpy
+   pip install pyspark numpy
    ```
-2. Launch Jupyter Lab/Notebook or VS Code and open the notebooks. Cells that require Spark will print a message and skip persistence steps when no Spark session is present.
+2. Launch Jupyter Lab/Notebook or VS Code, ensure a Spark session is created (the notebooks attempt to start one automatically), and run the cells. Persistence steps are skipped when Spark tables cannot be reached.
 
 ## Troubleshooting
 
